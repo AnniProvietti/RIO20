@@ -24,7 +24,14 @@ class Activ:
         return pyset
         # print(len(pyset), )
 
-    def get_jogadores(self, date="2012", start_count=(0, 100)):
+    def players (self, date="2012", start_count=(0, 2000)):
+        a, b = start_count
+        dataset = urlopen(URLREG)
+        pyset = loads(dataset.read())
+        registros = pyset
+        registros = [numreg for data, numreg in registros if data and date in data]
+        return registros[a:b]
+    def get_jogadores(self, date="2012", start_count=(0, 2000)):
         a, b = start_count
         dataset = urlopen(URLGET)  # por favor abra o pacote
         pyset = loads(dataset.read())  # vai transformar os strings do json
@@ -32,7 +39,7 @@ class Activ:
         registros = [numreg for data, numreg in registros if data and date in data]
         return registros[a:b]
 
-    def file_demographics(self, date="2012", start_count=(0, 100), name="bigdemo.csv"):
+    def file_demographics(self, date="2012", start_count=(0, 2000), name="bigdemo.csv"):
         a, b = start_count
         registros = self.get_jogadores(date)
         params = self.PARAMS
@@ -44,7 +51,7 @@ class Activ:
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             [spamwriter.writerow(line) for line in lines]
 
-    def file_game_demographics(self, date="2012", start_count=(0, 100), name="bigdemo.csv"):
+    def file_game_demographics(self, date="2012", start_count=(0, 2000), name="bigdemo.csv"):
         a, b = start_count
         registros = self.get_jogadores(date)
         params = self.PARAMS
@@ -56,6 +63,8 @@ class Activ:
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             [spamwriter.writerow(line) for line in lines]
 
+
+# %%
 
 # %%
 class RioPandas:
@@ -72,7 +81,7 @@ class Sample:
     """Todos os jogadores de uma amostra"""
 
     def __init__(self, sample, **kwargs):
-        self.players = [Player(**player)  for player in sample]
+        self.players = [Player(**player) for player in sample]
 
     def visit(self, visitor):
         visitor.visit_sample(self, players=self.players)
@@ -83,7 +92,7 @@ class Player:
 
     def __init__(self, session, games, **kwargs):
         self.session = session
-        self.games = [Game(**game)  for game in games]
+        self.games = [Game(**game) for game in games]
 
     def visit(self, visitor):
         visitor.visit_player(self, session=self.session, games=self.games)
@@ -94,7 +103,7 @@ class Game:
 
     def __init__(self, name, time, maxlevel, goal, **kwargs):
         self.name, self.time, self.maxlevel = name, time, maxlevel
-        self.goals = [Goal(**a_goal) for a_goal in self.goals]
+        self.goal = [Goal(**a_goal) for a_goal in self.goal]
 
     def visit(self, visitor):
         visitor.visit_game(self, goal=self.goals, name=self.name, time=self.time, maxlevel=self.maxlevel)
@@ -203,7 +212,7 @@ class Visitor:
 
 # %%
 class Rio20Stats:
-    def __init__(self, date="2018", start_count=(0, 100), pic_file="sample.dat"):
+    def __init__(self, date="2012", start_count=(0, 2000), pic_file="sample.dat"):
         self.games = {}
         self.activ_reader = activ_reader = Activ()
         self.sample_stream = activ_reader.get_jogadores(date=date, start_count=start_count)
@@ -239,8 +248,71 @@ class Rio20Stats:
         return True
 
     def count_game_play(self, game, goal, name, **kwargs):
-        # print("count_game_play", game, goal, name)
-        self.games.update({name: self.games.setdefault(name, 0) + 1})
+        #print("count_game_play", game, goal, name)
+        self.games.update({name: self.games.setdefault(name, 0)+1})
         return False
+
+
+# %%
+
+class Rio20Select:
+
+    def __init__(self):
+        self.games = {}
+        self.selector = 'tol'
+        self.trials = {}
+        self.goals = {}
+        self.activ_reader = activ_reader = Activ()
+        self.sample = Sample(sample=[activ_reader.one_player(player) for player in activ_reader.get_jogadores()])
+        self.visitor = Visitor(
+            leaf_action=dict(game=self.count_game_play, goal=self.count_trials))
+
+    def plot_stats(self, x, xticks, y, label="number of participants", title="count"):
+        # print("plot_stats", x, xticks, y, self.games)
+        fig = plt.figure()
+        plt.xticks(x, xticks)
+        fig.suptitle(title)
+        plt.ylabel(label)
+        _ = plt.bar(x, y)
+        _ = plt.show()
+
+    def plot_trials(self):
+        trials = sorted(self.trials.items())
+        self.plot_stats(range(len(self.trials)), *zip(*trials), label="number of trials", title='Trials')
+        return self
+
+    def plot_goals(self):
+        goals = sorted(self.goals.items())
+        self.plot_stats(range(len(self.goals)), *zip(*goals), label="number of goals", title='Goals')
+        return self
+
+    def main(self, selector='tol'):
+        self.games = {}
+        self.selector = selector
+        self.trials = {}
+        self.goals = {}
+        self.sample.visit(self.visitor)
+        return self
+
+    def count_goals(self, _, goal, **kwargs):
+        # print("count_game_play", game, goal, name)
+        n_trials = len(goal)
+        self.goals.update({n_trials: self.goals.setdefault(n_trials, 0) + 1})
+        return True
+
+    def count_trials(self, _, trial, **kwargs):
+        # print("count_game_play", game, goal, name)
+        n_trials = len(trial)
+        self.trials.update({n_trials: self.trials.setdefault(n_trials, 0) + 1})
+        return False
+
+    def count_game_play(self, game, goal, name, **kwargs):
+        # print("count_game_play", game, goal, name)
+        if name == self.selector:
+            self.games.update({name: self.games.setdefault(name, 0) + 1})
+            self.count_goals(game, goal=goal)
+            return True
+        return False
+
 
 # %%

@@ -11,8 +11,8 @@ URLGET = f"{URL}getlist"
 URLREG = f"{URL}getsession?id="
 
 class RioPlayers:
-    PARAMS = "session games ".split()
-    PARAMSGAMES = "maxlevel goal name time".split()
+    PARAMS = " session games ".split()
+    PARAMSGAMES = " name maxlevel goal time".split()
     def __init__(self):
         self.players = self.legends = None
     def one_player(self, play_url='73fbc2485310c96337746a74be854235'):
@@ -20,7 +20,8 @@ class RioPlayers:
         aluno1 = urlopen(urlreg1)
         pyset = loads(aluno1.read())
         return pyset
-    def get_players(self, date="2012", start_count=(0, 2000)):
+
+    def get_players(self, date="2012", start_count=(0, 20)):
         a, b = start_count
         dataset = urlopen(URLGET)  # por favor abra o pacote
         pyset = loads(dataset.read())  # vai transformar os strings do json
@@ -28,10 +29,10 @@ class RioPlayers:
         registros = [numreg for data, numreg in registros if data and date in data]
         return registros[a:b]
 
-    def file_demographics(self, date="2012", start_count=(0, 2000), name="demo.csv"):
+    def file_demographics(self, date="2012", start_count=(0, 20), name="infodemo.csv"):
         a, b = start_count
         registros = self.get_players(date)
-        params = self.PARAMS
+        params = self.PARAMSGAMES
         lines = []
         for reg in registros[a:b]:
             lines.append([self.one_player(reg)[col] for col in params])
@@ -46,7 +47,7 @@ class RioPlayers:
 
 class RioPandas:
     def __init__(self):
-        self._data = pd.read_csv('demo.csv', delimiter='\t', names=RioPlayers.PARAMS)
+        self._data = pd.read_csv('infodemo.csv', delimiter='\t', names=RioPlayers.PARAMS)
 
     @property
     def data(self):
