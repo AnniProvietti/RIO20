@@ -10,11 +10,14 @@ URL = "http://activufrj.nce.ufrj.br/api/"
 URLGET = f"{URL}getlist"
 URLREG = f"{URL}getsession?id="
 
+
 class RioPlayers:
     PARAMS = " session games ".split()
     PARAMSGAMES = " name maxlevel goal time".split()
+
     def __init__(self):
         self.players = self.legends = None
+
     def one_player(self, play_url='73fbc2485310c96337746a74be854235'):
         urlreg1 = URLREG + play_url  # vai somar colocando no link
         aluno1 = urlopen(urlreg1)
@@ -43,11 +46,30 @@ class RioPlayers:
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             [spamwriter.writerow(line) for line in lines]
 
-#%%
+    def games_file_demographics(self, date="2012", start_count=(0, 20), name="infodemo.csv"):
+
+        a, b = start_count
+        registros = self.get_players(date)
+        params = self.PARAMSGAMES
+        games = self.one_player()
+        lines_aux = []
+        lines = []
+        reg: str
+        for reg in registros[a:b]:
+            games_one_player = RioPlayers().one_player(reg)["games"]
+            for jogada in [0,1]: #REVER for game in games
+                dados = games_one_player[jogada]
+                for info_game in params:
+                    lines.append(dados[info_game])
+                    print(reg, jogada, info_game)
+        print(lines)
+
+
+# %%
 
 class RioPandas:
     def __init__(self):
-        self._data = pd.read_csv('infodemo.csv', delimiter='\t', names=RioPlayers.PARAMS)
+        self._data = pd.read_csv('infodemo.csv', delimiter='\t', names=RioPlayers.PARAMSGAMES)
 
     @property
     def data(self):
