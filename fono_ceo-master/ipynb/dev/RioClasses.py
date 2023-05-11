@@ -13,12 +13,12 @@ URLREG = f"{URL}getsession?id="
 
 class RioPlayers:
     PARAMS = " session games ".split()
-    PARAMSGAMES = " name maxlevel goal time".split()
+    PARAMSGAMES = " name maxlevel time ".split() #goal retirado
 
     def __init__(self):
         self.players = self.legends = None
 
-    def one_player(self, play_url='73fbc2485310c96337746a74be854235'):
+    def one_player(self, play_url='86cb91e61f4d95f831f128dbdde863ba'): #data de 2012
         urlreg1 = URLREG + play_url  # vai somar colocando no link
         aluno1 = urlopen(urlreg1)
         pyset = loads(aluno1.read())
@@ -32,10 +32,10 @@ class RioPlayers:
         registros = [numreg for data, numreg in registros if data and date in data]
         return registros[a:b]
 
-    def file_demographics(self, date="2012", start_count=(0, 20), name="infodemo.csv"):
+    def file_demographics(self, date="2012", start_count=(0, 20), name="infogames.csv"):
         a, b = start_count
         registros = self.get_players(date)
-        params = self.PARAMSGAMES
+        params = self.PARAMS
         lines = []
         for reg in registros[a:b]:
             lines.append([self.one_player(reg)[col] for col in params])
@@ -46,30 +46,47 @@ class RioPlayers:
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             [spamwriter.writerow(line) for line in lines]
 
-    def games_file_demographics(self, date="2012", start_count=(0, 20), name="infodemo.csv"):
+    def games_file_demographics(self, date="2012", start_count=(0, 20), name="infogames.csv"):
 
         a, b = start_count
         registros = self.get_players(date)
         params = self.PARAMSGAMES
-        games = self.one_player()
-        lines_aux = []
+        lines_name = []
+        lines_maxlevel =[]
+        lines_time = []
         lines = []
         reg: str
         for reg in registros[a:b]:
-            games_one_player = RioPlayers().one_player(reg)["games"]
-            for jogada in [0,1]: #REVER for game in games
+            games_one_player = self.one_player(reg)["games"]
+            for jogada in range(len(games_one_player)):
                 dados = games_one_player[jogada]
-                for info_game in params:
-                    lines.append(dados[info_game])
-                    print(reg, jogada, info_game)
+                for info_dados in params:
+                    if info_dados == "name":
+                        lines_name.append(dados[info_dados])
+                    elif info_dados == "maxlevel":
+                        lines_maxlevel.append(dados[info_dados])
+                    elif info_dados == "time":
+                        lines_time.append(dados[info_dados])
+                    #salva as informações de cada jogador
+        lines = [lines_name, lines_maxlevel, lines_time]
         print(lines)
+
+
+        import csv
+        with open(name, 'w') as csvfile:
+            #informacoes coletadas: name maxlevel time
+            spamwriter = csv.writer(csvfile, delimiter='\t',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            [spamwriter.writerow(line) for line in lines]
+
+
 
 
 # %%
 
 class RioPandas:
     def __init__(self):
-        self._data = pd.read_csv('infodemo.csv', delimiter='\t', names=RioPlayers.PARAMSGAMES)
+        self._data = pd.read_csv('infogames.csv', delimiter='\t', names=RioPlayers.PARAMSGAMES)
 
     @property
     def data(self):
