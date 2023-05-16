@@ -68,16 +68,18 @@ class RioPlayers:
                     elif info_dados == "time":
                         lines_time.append(dados[info_dados])
                     #salva as informações de cada jogador
-        lines = [lines_name, lines_maxlevel, lines_time]
+        lines = {'Name': lines_name, 'Maxlevel': lines_maxlevel, 'Time': lines_time}
         print(lines)
-
+        df_DIV = pd.DataFrame(lines, columns=['Name','Maxlevel','Time'])
+        print(df_DIV.iloc[2])
 
         import csv
         with open(name, 'w') as csvfile:
             #informacoes coletadas: name maxlevel time
-            spamwriter = csv.writer(csvfile, delimiter='\t',
-                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            [spamwriter.writerow(line) for line in lines]
+            spamwriter = csv.writer(csvfile, delimiter='\t')
+            for line in range(len(df_DIV)):
+                [spamwriter.writerow(df_DIV.iloc[line])]
+
 
 
 
@@ -87,7 +89,7 @@ class RioPlayers:
 class RioPandas:
     def __init__(self):
         self._data = pd.read_csv('infogames.csv', delimiter='\t', names=RioPlayers.PARAMSGAMES)
-
+        #self._data = pd.read_csv ('infogames.csv')
     @property
     def data(self):
         return self._data
