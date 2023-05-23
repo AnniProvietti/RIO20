@@ -12,7 +12,8 @@ URLREG = f"{URL}getsession?id="
 
 
 class RioPlayers:
-    PARAMS = "sexo2 idade1 idade2 ano1 ano2 escola sexo1 starttime endtime tipoescola".split()
+
+    PARAMS = "ano1 idade1 sexo1 starttime endtime tipoescola escola".split()
     PARAMSGAMES = " name maxlevel time ".split() #goal retirado
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
 
@@ -37,10 +38,8 @@ class RioPlayers:
         a, b = start_count
         registros = self.get_players(date)
         params = self.PARAMS
-        lines = []
-        for reg in registros[a:b]:
-            lines.append([self.one_player(reg)[col] for col in params])
-        print("demo:", lines[0:10])
+        lines = [[self.one_player(reg)["session"][col] for col in params] for reg in registros[a:b]]
+        print("demo:", lines[0])
         import csv
         with open(name, 'w') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter='\t',
@@ -52,26 +51,28 @@ class RioPlayers:
         a, b = start_count
         registros = self.get_players(date)
         params = self.PARAMSGAMES
-        lines_name = []
-        lines_maxlevel =[]
-        lines_time = []
-        lines = []
-        reg: str
-        for reg in registros[a:b]:
-            games_one_player = self.one_player(reg)["games"]
-            for jogada in range(len(games_one_player)):
-                dados = games_one_player[jogada]
-                for info_dados in params:
-                    if info_dados == "name":
-                        lines_name.append(dados[info_dados])
-                    elif info_dados == "maxlevel":
-                        lines_maxlevel.append(dados[info_dados])
-                    elif info_dados == "time":
-                        lines_time.append(dados[info_dados])
-                    #salva as informações de cada jogador
-        lines = {'Name': lines_name, 'Maxlevel': lines_maxlevel, 'Time': lines_time}
-        print(lines)
-        df_DIV = pd.DataFrame(lines, columns=['Name','Maxlevel','Time'])
+        # lines_name = []
+        # lines_maxlevel =[]
+        # lines_time = []
+        # lines = []
+        # reg: str
+        # for reg in registros[a:b]:
+        #     games_one_player = self.one_player(reg)["games"]
+        #     for jogada in range(len(games_one_player)):
+        #         dados = games_one_player[jogada]
+        #         for info_dados in params:
+        #             if info_dados == "name":
+        #                 lines_name.append(dados[info_dados])
+        #             elif info_dados == "maxlevel":
+        #                 lines_maxlevel.append(dados[info_dados])
+        #             elif info_dados == "time":
+        #                 lines_time.append(dados[info_dados])
+        #             #salva as informações de cada jogador
+        # lines = {'Name': lines_name, 'Maxlevel': lines_maxlevel, 'Time': lines_time}
+        # print(lines[0:20])
+        reg = [x for x in registros[a:b]]
+        one_player = [[game[k] for k in "name maxlevel time".split()] for y in reg for game in self.one_player(y)["games"]]
+        df_DIV = pd.DataFrame(one_player, columns=['Name','Maxlevel','Time'])
         print(df_DIV.iloc[2])
 
         import csv
@@ -86,41 +87,9 @@ class RioPlayers:
         a,b = start_count
         registros = self.get_players(date)
         params = self.PARAMSGOAL
-        lines = []
-        lines_houses = []
-        lines_criteria = []
-        lines_markers = []
-        lines_trial = []
-        lines_headings = []
-        lines_time = []
-        lines_level = []
-        reg: str
-        for reg in registros[a:b]:
-            games_one_player = self.one_player(reg)["games"]
-            for jogada in range(len(games_one_player)):
-                goal = games_one_player[jogada]["goal"]
-                for info_goal in range(len(goal)):
-                    dados_goal = goal[info_goal]
-                    for info_dados in params:
-                        if info_dados == "houses":
-                            lines_houses.append(dados_goal[info_dados])
-                        elif info_dados == "criteria":
-                            lines_criteria.append(dados_goal[info_dados])
-                        elif info_dados == "markers":
-                            lines_markers.append(dados_goal[info_dados])
-                        elif info_dados == "trial":
-                            lines_trial.append(dados_goal[info_dados])
-                        elif info_dados == "headings":
-                            lines_headings.append(dados_goal[info_dados])
-                        elif info_dados == "time":
-                            lines_time.append(dados_goal[info_dados])
-                        elif info_dados == "level":
-                            lines_level.append(dados_goal[info_dados])
-            #salva as informações de cada jogador
-        lines = {'Houses': lines_houses, 'Criteria': lines_criteria,'Markers': lines_markers, 'Trial': lines_trial, 'Headings': lines_headings, 'Time': lines_time, 'Level':lines_level}
-        print(lines_houses[0])
-        #print(lines)
-        df_DIV = pd.DataFrame(lines, columns=['Houses', 'Criteria', 'Markers', 'Trial', 'Headings', 'Time', 'Level'])
+        reg = [x for x in registros[a:b]]
+        one_player = [[goal[k] for k in "houses criteria markers trial headings time level".split()] for y in reg for game in self.one_player(y)["games"] for goal in game["goal"]]
+        df_DIV = pd.DataFrame(one_player, columns=['Houses', 'Criteria', 'Markers', 'Trial', 'Headings', 'Time', 'Level'])
         print(df_DIV)
 
         import csv
@@ -135,6 +104,15 @@ class RioPlayers:
 # %%
 
 class RioPandas:
+    def __init__(self):
+        self._data = pd.read_csv('infodemo.csv', delimiter='\t', names=RioPlayers.PARAMS)
+        #self._data = pd.read_csv ('infogames.csv')
+    @property
+    def data(self):
+        return self._data
+
+# %%
+class RioPandasGames:
     def __init__(self):
         self._data = pd.read_csv('infogames.csv', delimiter='\t', names=RioPlayers.PARAMSGAMES)
         #self._data = pd.read_csv ('infogames.csv')
