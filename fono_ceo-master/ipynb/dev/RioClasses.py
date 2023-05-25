@@ -16,6 +16,7 @@ class RioPlayers:
     PARAMS = "ano1 idade1 sexo1 starttime endtime tipoescola escola".split()
     PARAMSGAMES = " name maxlevel time ".split() #goal retirado
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
+    PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -100,7 +101,22 @@ class RioPlayers:
             for line in range(len(df_DIV)):
                 [spamwriter.writerow(df_DIV.iloc[line])]
 
+    def trial_file_demographics(self, date="2012", start_count=(0,2000), name="goal_trial.csv"):
 
+        a,b = start_count
+        registros = self.get_players(date)
+        reg = [x for x in registros[a:b]]
+        one_player = [[trial[k] for k in "xpos house ypos player state score result time marker".split()] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] for trials in goals["trial"] for trial in trials]
+        df_DIV = pd.DataFrame(one_player, columns=['xpos', 'house', 'ypos', 'player', 'state', 'score', 'result', 'time', 'marker'])
+        print(df_DIV)
+
+        import csv
+        with open(name, 'w') as csvfile:
+            #informacoes coletadas
+            spamwriter = csv.writer(csvfile, delimiter='\t')
+            print(df_DIV.iloc[2])
+            for line in range(len(df_DIV)):
+                [spamwriter.writerow(df_DIV.iloc[line])]
 # %%
 
 class RioPandas:
@@ -128,5 +144,16 @@ class RioPandasGoal:
     @property
     def data(self):
         return self._data
+
+class RioPandasTrial:
+    def __init__(self):
+        self._data = pd.read_csv('goal_trial.csv', delimiter='\t', names=RioPlayers.PARAMSTRIAL)
+        #self._data = pd.read_csv ('infogames.csv')
+    @property
+    def data(self):
+        return self._data
+
+
+
 
 #%%
