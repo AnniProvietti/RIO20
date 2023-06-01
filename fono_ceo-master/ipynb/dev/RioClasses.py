@@ -117,6 +117,38 @@ class RioPlayers:
             print(df_DIV.iloc[2])
             for line in range(len(df_DIV)):
                 [spamwriter.writerow(df_DIV.iloc[line])]
+
+    def houses_file_demographics(self, date="2012", start_count=(0,2000), name="houses.csv"):
+
+
+        a,b = start_count
+        registros = self.get_players(date)
+        params = self.PARAMSGOAL
+        reg = [x for x in registros[a:b]]
+
+        game_tol = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if game["name"] == "tol"]
+        sorted_tol = sorted(game_tol, key=lambda k: (k['h'], k['b'],k['m'],k['l']))
+
+        game_wis = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+        sorted_wis = sorted(game_wis, key=lambda k: (k['categoria'], k['acertosConsecutivos'],k['indiceCartaAtual'], k['outrosConsecutivos'], k['wteste']))
+        other_games = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if (game["name"] == "trainz" and game["name"] == "cancel" and game["name"] == "trilha")]
+
+
+        df_tol = pd.DataFrame(sorted_tol, columns=['h','b','m','l'])
+        df_wis = pd.DataFrame(sorted_wis)
+        df_other = pd.DataFrame(other_games)
+
+        print("--TOL--",df_tol)
+        print("--WISCONSIN--",df_wis)
+        print("--OUTROS--",df_other)
+
+        # import csv
+        # with open(name, 'w') as csvfile:
+        #     #informacoes coletadas
+        #     spamwriter = csv.writer(csvfile, delimiter='\t')
+        #
+        #     for line in range(len(df_tol)):
+        #         [spamwriter.writerow(df_tol.iloc[line])]
 # %%
 
 class RioPandas:
