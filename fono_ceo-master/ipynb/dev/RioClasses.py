@@ -21,7 +21,7 @@ class RioPlayers:
     def __init__(self):
         self.players = self.legends = None
 
-    def one_player(self, play_url='86cb91e61f4d95f831f128dbdde863ba'): #data de 2012
+    def one_player(self, play_url='969f29df688afc71a6d07864a7008eeb'): #data de 2012
         urlreg1 = URLREG + play_url  # vai somar colocando no link
         aluno1 = urlopen(urlreg1)
         pyset = loads(aluno1.read())
