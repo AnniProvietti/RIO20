@@ -17,7 +17,7 @@ class WisconsinPlayers:
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
     PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
     PARAMSHOUSES = "categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
-    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne  categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste xpos house ypos player state score result time marker criteria markers headings time level".split()
+    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne  categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste xpos house ypos player state score result timeTrial marker criteria markers headings time level".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -83,6 +83,7 @@ class WisconsinPlayers:
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             [spamwriter.writerow(df_wis.iloc[line]) for line in range(len(df_wis))]
 
+        return df_wis
 
 
 class WisconsinPandas:
