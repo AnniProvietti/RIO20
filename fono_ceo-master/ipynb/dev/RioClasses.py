@@ -17,6 +17,7 @@ class RioPlayers:
     PARAMSGAMES = " name maxlevel time ".split() #goal retirado
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
     PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
+    PARAMSHOUSES = "h b m l categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -118,37 +119,54 @@ class RioPlayers:
             for line in range(len(df_DIV)):
                 [spamwriter.writerow(df_DIV.iloc[line])]
 
-    def houses_file_demographics(self, date="2012", start_count=(0,2000), name="houses.csv"):
+    def houses_file_demographics(self, date="2012", start_count=(0,2000), name="goal_houses.csv"):
 
 
         a,b = start_count
         registros = self.get_players(date)
         params = self.PARAMSGOAL
+        indice =[]
         reg = [x for x in registros[a:b]]
-
+        tol = []
+        wis = []
+        cancel = []
         game_tol = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if game["name"] == "tol"]
-        sorted_tol = sorted(game_tol, key=lambda k: (k['h'], k['b'],k['m'],k['l']))
+        # sorted_tol = sorted(game_tol, key=lambda k: (k['h'], k['b'],k['m'],k['l']))
+        print(len(game_tol))
+        for name in range(len(game_tol)):
+             tol.append("tol")
+        # tol = tol + [game["name"] for y in reg for game in self.one_player(y)["games"] if game["name"] == "tol"]
+        print(len(tol))
 
         game_wis = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
-        sorted_wis = sorted(game_wis, key=lambda k: (k['categoria'], k['acertosConsecutivos'],k['indiceCartaAtual'], k['outrosConsecutivos'], k['wteste']))
-        other_games = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if (game["name"] == "trainz" and game["name"] == "cancel" and game["name"] == "trilha")]
+        # sorted_wis = sorted(game_wis, key=lambda k: (k['categoria'], k['acertosConsecutivos'],k['indiceCartaAtual'], k['outrosConsecutivos'], k['wteste']))
+        # wis = wis + [game["name"] for y in reg for game in self.one_player(y)["games"] if game["name"] == "wisconsin"]
+        for name in range(len(game_wis)):
+            wis.append("wisconsin")
+        game_cancel = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if game["name"] == "cancel"]
+        game_trilha = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if game["name"] == "cancel"]
+        game_trainz = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] if game["name"] == "cancel"]
+        # other = other + [game["name"] for y in reg for game in self.one_player(y)["games"] if ((game["name"] != "tol") and (game["name"] != "wisconsin"))]
+        for name in range(len(game_cancel)):
+            cancel.append("cancel")
 
+        df_tol = pd.DataFrame(game_tol, index = tol, columns=['h','b','m','l'])
+        df_wis = pd.DataFrame(game_wis,index = wis, columns=['categoria','acertosConsecutivos','indiceCartaAtual','outrosConsecutivos', 'wteste'])
+        df_cancel = pd.DataFrame(game_cancel, index = cancel)
+        print(df_tol)
+        print(df_wis)
+        print(df_cancel)
+        df_houses = pd.concat([df_tol,df_wis,df_cancel], axis=0)
+        print(df_houses)
+        return df_houses
 
-        df_tol = pd.DataFrame(sorted_tol, columns=['h','b','m','l'])
-        df_wis = pd.DataFrame(sorted_wis)
-        df_other = pd.DataFrame(other_games)
+        import csv
+        with open(name, 'w') as csvfile:
+            #informacoes coletadas
+            spamwriter = csv.writer(csvfile, delimiter='\t')
 
-        print("--TOL--",df_tol)
-        print("--WISCONSIN--",df_wis)
-        print("--OUTROS--",df_other)
-
-        # import csv
-        # with open(name, 'w') as csvfile:
-        #     #informacoes coletadas
-        #     spamwriter = csv.writer(csvfile, delimiter='\t')
-        #
-        #     for line in range(len(df_tol)):
-        #         [spamwriter.writerow(df_tol.iloc[line])]
+            for line in range(len(df_houses)):
+                [spamwriter.writerow(df_houses.iloc[line])]
 # %%
 
 class RioPandas:
@@ -186,6 +204,12 @@ class RioPandasTrial:
         return self._data
 
 
+class WisconsinPandas:
+    def __init__(self):
+        self._data = pd.read_csv('goal_houses.csv', delimiter='\t', names=RioPlayers.PARAMSHOUSES,encoding='ISO-8859-1')
 
+    @property
+    def data(self):
+        return self._data
 
 #%%
