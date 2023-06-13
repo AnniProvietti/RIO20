@@ -12,12 +12,12 @@ URLREG = f"{URL}getsession?id="
 
 class WisconsinPlayers:
 
-    PARAMS = "ano1 idade1 sexo1 starttime endtime tipoescola escola".split()
+    PARAMS = "ano1 idade1 sexo1 starttime endtime tipoescola".split()
     PARAMSGAMES = " name maxlevel time ".split() #goal retirado
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
     PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
-    PARAMSHOUSES = "h b m l categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
-    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola escola name maxlevel timeOne houses criteria markers trial headings time level".split()
+    PARAMSHOUSES = "categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
+    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne  categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste xpos house ypos player state score result time marker criteria markers headings time level".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -46,17 +46,35 @@ class WisconsinPlayers:
 
         one_player = [[game[k] for k in "name maxlevel time".split()] for y in reg for game in self.one_player(y)["games"] if game["name"] == "wisconsin"]
 
-        one_player_goal = [[goal[k] for k in "houses criteria markers trial headings time level".split()] for y in reg for game in self.one_player(y)["games"] for goal in game["goal"] if game["name"] == "wisconsin"]
-        
-        df_dados = pd.DataFrame(dados, columns=["ano1" ,"idade1", "sexo1", "starttime", "endtime", "tipoescola", "escola"])
-        df_one = pd.DataFrame(one_player, columns=["name", "maxlevel", "time"])
-        df_onegoal = pd.DataFrame(one_player_goal, columns=['Houses', 'Criteria', 'Markers', 'Trial', 'Headings', 'Time', 'Level'])
+        # one_player_goal = [[goal[k] for k in "houses criteria markers trial headings time level".split()] for y in reg for game in self.one_player(y)["games"] for goal in game["goal"] if game["name"] == "wisconsin"]
+        one_player_houses = [goals["houses"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
 
-        print(len(df_dados))
-        print(len(df_one) )
-        print(len(df_onegoal) )
-        
-        df_wis = pd.concat([df_dados, df_one, df_onegoal], axis=1)
+        one_player_trial = [trial for y in reg for game in self.one_player(y)["games"] for goals in game["goal"] for trials in goals["trial"] for trial in trials if game["name"] == "wisconsin"]
+
+        one_player_criteria = [goals["criteria"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+
+        one_player_markers = [goals["markers"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+
+        one_player_headings = [goals["headings"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+
+        one_player_time = [goals["time"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+
+        one_player_level = [goals["level"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+
+
+        df_dados = pd.DataFrame(dados, columns=["ano1" ,"idade1", "sexo1", "starttime", "endtime", "tipoescola"])
+        df_one = pd.DataFrame(one_player, columns=["name", "maxlevel", "time"])
+        # df_onegoal = pd.DataFrame(one_player_goal, columns=['Houses', 'Criteria', 'Markers', 'Trial', 'Headings', 'Time', 'Level'])
+        df_one_houses = pd.DataFrame(one_player_houses, columns=['categoria','acertosConsecutivos','indiceCartaAtual','outrosConsecutivos', 'wteste'])
+        df_one_trial = pd.DataFrame(one_player_trial, columns=['categoria','xpos','cor', 'score','acertos', 'house','outros','numero', 'ypos', 'player', 'state', 'result', 'time', 'marker'])
+        df_one_criteria = pd.DataFrame(one_player_criteria)
+        df_one_markers = pd.DataFrame(one_player_markers)
+        df_one_headings = pd.DataFrame(one_player_headings)
+        df_one_time = pd.DataFrame(one_player_time)
+        df_one_level = pd.DataFrame(one_player_level)
+
+
+        df_wis = pd.concat([df_dados, df_one, df_one_houses, df_one_trial,df_one_criteria,df_one_markers,df_one_headings,df_one_time,df_one_level], axis=1)
         print(df_wis)
 
         import csv
@@ -69,7 +87,7 @@ class WisconsinPlayers:
 
 class WisconsinPandas:
     def __init__(self):
-        self._data = pd.read_csv('wisconsin.csv', delimiter='\t', names=WisconsinPlayers.PARAMSDADOS,encoding='ISO-8859-1')
+        self._data = pd.read_csv('wisconsin.csv', delimiter='\t', names=WisconsinPlayers.PARAMSDADOS,encoding='ISO-8859-1',low_memory=False)
 
     @property
     def data(self):
