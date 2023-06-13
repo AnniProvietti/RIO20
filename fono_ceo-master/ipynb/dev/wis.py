@@ -59,7 +59,7 @@ class WisconsinPlayers:
 
         one_player_markers = [goals["markers"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
 
-        one_player_headings = [goals["headings"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
+        one_player_headings = [game["goal"]["headings"] for y in reg for game in self.one_player(y)["games"] if game["name"] == "wisconsin"]
 
         one_player_time = [goals["time"] for y in reg for game in self.one_player(y)["games"] for goals in game["goal"]if game["name"] == "wisconsin"]
 
