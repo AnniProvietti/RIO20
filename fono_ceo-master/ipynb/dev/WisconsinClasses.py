@@ -38,9 +38,11 @@ class WisconsinPlayers:
 
     def file_demographics(self, date="2012", start_count=(0, 2000), name="wisconsin.csv"):
         a, b = start_count
+        count = 0
         registros = self.get_players(date)
         params = self.PARAMS
         reg = [x for x in registros[a:b]]
+
 
         dados = [[self.one_player(y)["session"][col] for col in params] for y in reg for game in self.one_player(y)[
             'games'] if game["name"] == "wisconsin"]
@@ -56,7 +58,31 @@ class WisconsinPlayers:
             'goal'] if game["name"] == "wisconsin"]
 
         one_player_trial = [trial for y in reg for game in self.one_player(y)["games"] for goals in game[
-            "goal"] for trials in goals["trial"] for trial in trials if game["name"] == "wisconsin"]
+             "goal"] for trials in goals["trial"] for trial in trials if game["name"] == "wisconsin"]
+
+        tr1 =[]
+        tr2 =[]
+        tr3 =[]
+
+        for y in reg:
+            one = self.one_player(y)
+            for game in one["games"]:
+                if game["name"] == "wisconsin":
+                    one_name = game["name"]
+                    for goals in game["goal"]:
+                        for trials in goals["trial"]:
+                            one_id = one["_id"]
+                            one_name = game["name"]
+                            for trial in trials:
+                                tr1.append(one_id)
+                                tr2.append(one_name)
+                                tr3.append(trial)
+
+        tr = [tr1,tr2]
+
+        df_tr = pd.DataFrame(tr)
+        df_tr = df_tr.T
+
 
         one_player_criteria = [goals["criteria"] for y in reg for game in self.one_player(y)["games"] for goals in game[
             "goal"] if game["name"] == "wisconsin"]
@@ -86,11 +112,15 @@ class WisconsinPlayers:
         df_one_time = pd.DataFrame(one_player_time)
         df_one_level = pd.DataFrame(one_player_level)
 
-        df_wis = pd.concat(
-            [df_dados, df_one, df_one_houses, df_one_trial, df_one_criteria, df_one_markers, df_one_headings,
-             df_one_time, df_one_level], axis=1)
-        print(df_wis)
+        df_oneplayer = pd.concat(
+            [df_tr,df_dados, df_one, df_one_houses, df_one_trial, df_one_criteria, df_one_markers, df_one_headings,
+              df_one_time, df_one_level], axis=1)
 
+        df_wis = df_oneplayer
+        print(len(one_player_trial))
+
+        print(df_wis)
+        return df_wis
         import csv
         with open(name, 'w') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=';')
