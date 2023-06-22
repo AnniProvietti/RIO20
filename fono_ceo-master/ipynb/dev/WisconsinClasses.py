@@ -17,8 +17,9 @@ class WisconsinPlayers:
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
     PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
     PARAMSHOUSES = "categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
-    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne  categoria acertosConsecutivos indiceCartaAtual " \
-                  "outrosConsecutivos wteste categoriaTrial xpos cor score acertos house outros numero ypos player state result timeTrial marker c0 c1 c2 c3 c4 c5 c6 c7 markers h0 h1 h2 h3 h4 h5 h6 h7 time level".split()
+    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne categoria acertosConsecutivos indiceCartaAtual" \
+                  "outrosConsecutivos wteste  c0 c1 c2 c3 c4 c5 c6 c7 h0 h1 h2 h3 h4 h5 h6 h7 time level markers " \
+                  "categoriaTrial xpos cor score acertos house outros numero ypos player state result timeTrial marker".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -113,12 +114,12 @@ class WisconsinPlayers:
         df_one_level = pd.DataFrame(one_player_level,index=id, columns=["level"])
 
         df_oneplayer = pd.concat(
-            [df_dados, df_one, df_one_houses, df_one_criteria, df_one_markers, df_one_headings,
-              df_one_time, df_one_level], axis=1)
+            [df_dados, df_one, df_one_houses, df_one_criteria,df_one_headings,
+              df_one_time, df_one_level,df_one_markers], axis=1)
 
         df_wis = df_oneplayer
 
-        df_wisconsin = pd.merge(df_wis,df_one_trial, how='inner', on=None, left_on=None, right_on=None, left_index=True, right_index=True)
+        df_wisconsin = pd.merge(df_wis,df_one_trial, how='outer', on=None, left_on=None, right_on=None, left_index=True, right_index=True)
 
 
         print(len(one_id))
