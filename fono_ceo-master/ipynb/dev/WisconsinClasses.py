@@ -122,9 +122,9 @@ class WisconsinPlayers:
         df_wisconsin = pd.merge(df_wis,df_one_trial, how='outer', on=None, left_on=None, right_on=None, left_index=True, right_index=True)
 
 
-        print(len(one_id))
-        print(df_wis)
-        print(df_one_trial)
+        # print(len(one_id))
+        # print(df_wis)
+        # print(df_one_trial)
         print(df_wisconsin)
 
         import csv
