@@ -17,7 +17,8 @@ class WisconsinPlayers:
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
     PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
     PARAMSHOUSES = "categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
-    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne  categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste xpos house ypos player state score result timeTrial marker criteria markers headings time level".split()
+    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne  categoria acertosConsecutivos indiceCartaAtual " \
+                  "outrosConsecutivos wteste categoriaTrial xpos cor score acertos house outros numero ypos player state result timeTrial marker c0 c1 c2 c3 c4 c5 c6 c7 markers h0 h1 h2 h3 h4 h5 h6 h7 time level".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -43,6 +44,7 @@ class WisconsinPlayers:
         params = self.PARAMS
         reg = [x for x in registros[a:b]]
 
+        id = [self.one_player(y)["_id"] for y in reg for game in self.one_player(y)["games"] if game["name"] == "wisconsin"]
 
         dados = [[self.one_player(y)["session"][col] for col in params] for y in reg for game in self.one_player(y)[
             'games'] if game["name"] == "wisconsin"]
@@ -78,10 +80,6 @@ class WisconsinPlayers:
                                 tr2.append(one_name)
                                 tr3.append(trial)
 
-        tr = [tr1,tr2]
-
-        df_tr = pd.DataFrame(tr)
-        df_tr = df_tr.T
 
 
         one_player_criteria = [goals["criteria"] for y in reg for game in self.one_player(y)["games"] for goals in game[
@@ -99,32 +97,39 @@ class WisconsinPlayers:
         one_player_level = [goals["level"] for y in reg for game in self.one_player(y)["games"] for goals in game[
             "goal"] if game["name"] == "wisconsin"]
 
-        df_dados = pd.DataFrame(dados, columns=["ano1", "idade1", "sexo1", "starttime", "endtime", "tipoescola"])
-        df_one = pd.DataFrame(one_player, columns=["name", "maxlevel", "time"])
-        df_one_houses = pd.DataFrame(one_player_houses, columns=['categoria', 'acertosConsecutivos', 'indiceCartaAtual',
+
+        # df_id = pd.DataFrame(id, columns=["id"])
+        df_dados = pd.DataFrame(dados,index=id, columns=["ano1", "idade1", "sexo1", "starttime", "endtime", "tipoescola"])
+        df_one = pd.DataFrame(one_player,index=id, columns=["name", "maxlevel", "time_one"])
+        df_one_houses = pd.DataFrame(one_player_houses,index=id, columns=['categoria_houses', 'acertosConsecutivos', 'indiceCartaAtual',
                                                                  'outrosConsecutivos', 'wteste'])
-        df_one_trial = pd.DataFrame(one_player_trial,
+        df_one_trial = pd.DataFrame(one_player_trial,index=tr1,
                                     columns=['categoria', 'xpos', 'cor', 'score', 'acertos', 'house', 'outros',
-                                             'numero', 'ypos', 'player', 'state', 'result', 'time', 'marker'])
-        df_one_criteria = pd.DataFrame(one_player_criteria)
-        df_one_markers = pd.DataFrame(one_player_markers)
-        df_one_headings = pd.DataFrame(one_player_headings)
-        df_one_time = pd.DataFrame(one_player_time)
-        df_one_level = pd.DataFrame(one_player_level)
+                                             'numero', 'ypos', 'player', 'state', 'result', 'time_trial', 'marker'])
+        df_one_criteria = pd.DataFrame(one_player_criteria,index=id,columns=["0", "1", "2", "3", "4", "5", "6", "7"])
+        df_one_markers = pd.DataFrame(one_player_markers,index=id)
+        df_one_headings = pd.DataFrame(one_player_headings,index=id,columns=["h0", "h1", "h2", "h3", "h4", "h5", "h6", "h7"])
+        df_one_time = pd.DataFrame(one_player_time,index=id, columns=["time"])
+        df_one_level = pd.DataFrame(one_player_level,index=id, columns=["level"])
 
         df_oneplayer = pd.concat(
-            [df_tr,df_dados, df_one, df_one_houses, df_one_trial, df_one_criteria, df_one_markers, df_one_headings,
+            [df_dados, df_one, df_one_houses, df_one_criteria, df_one_markers, df_one_headings,
               df_one_time, df_one_level], axis=1)
 
         df_wis = df_oneplayer
-        print(len(one_player_trial))
 
+        df_wisconsin = pd.merge(df_wis,df_one_trial, how='inner', on=None, left_on=None, right_on=None, left_index=True, right_index=True)
+
+
+        print(len(one_id))
         print(df_wis)
-        return df_wis
+        print(df_one_trial)
+        print(df_wisconsin)
+
         import csv
         with open(name, 'w') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=';')
-            [spamwriter.writerow(df_wis.iloc[line]) for line in range(len(df_wis))]
+            [spamwriter.writerow(df_wisconsin.iloc[line]) for line in range(len(df_wisconsin))]
 
         return df_wis
 
