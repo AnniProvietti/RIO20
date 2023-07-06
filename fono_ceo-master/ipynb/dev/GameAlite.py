@@ -2,6 +2,7 @@ import urllib.request, json
 import pandas as pd
 from pandas import DataFrame
 from collections import namedtuple
+import numpy as np
 
 furl = 'https://games.alite.selfip.org/score/'
 furlplayers = f"{furl}players"
@@ -61,6 +62,7 @@ class Players:
         return df_one_player_games
 
 
+
 class WiscPlot:
     Cfplot = namedtuple("Cfplot", "col title ylabel xlabel")
     Pnt = namedtuple("Pnt", "ok no td")
@@ -103,17 +105,18 @@ class WiscPlot:
             return count
         def joiner(k, t, w):
             k, t = int(k), int(t)
-            return int(int(t!=w)*2**w*k)
+            return int(int(t!=w)*2**(w % 3)*k)
         def bother(c, f, n, t):
-            c, f, n, t = int(c), int(f), int(n), int(t)
+            c, f, n, t = int(c), int(f), int(n), int(t) %3
             all_k = [c, f, n]
             target = all_k.pop(t)
             return target * sum(all_k)
-
-        point_list = [self.Pnt(*list(text)) for text in self.df.ponto.to_list()]
+        point_list = [self.Pnt(text[:-2],*list(text[-2:])) for text in self.df.ponto.to_list()]
         new_list = point_list[1:]+[self.Pnt(0, 0, 0)]
         val_list0 = [self.Val(*list(text)) for text in self.df.valor.to_list()]
-        val_list = [joiner(val.cc, val.ct, 0) + joiner(val.cf, val.ct, 1) + joiner(val.cn, val.ct, 2) for val in val_list0]
+        val_list = [joiner(val.cc, val.ct, 0) + joiner(val.cf, val.ct, 1) + joiner(val.cn, val.ct, 2) +
+                    joiner(val.cc, val.ct, 3) + joiner(val.cf, val.ct, 4) + joiner(val.cn, val.ct, 5)
+                    for val in val_list0]
         val_listn = val_list[1:]+[0]
         conserve = [(int(a.ok)) for a, b in zip(point_list, new_list)]
         conservation = [counter(a.ok, b.ok) for a, b in zip(point_list, new_list)]
@@ -174,8 +177,8 @@ class WiscPlot:
         chart_ = sns.histplot(data=df_, stat="count", multiple="stack",
                               x="incidence", kde=False,
                               palette="pastel", hue="measure",
-                              element="bars", legend=True)
-        ax.set(xlim=(1, None), ylim=(0, 30))
+                              element="bars", ax=ax, legend=True)
+        ax.set(xlim=(9, None), ylim=(0, 30))
 
         _ = chart_.set(title=cfg.title, ylabel=cfg.ylabel, xlabel=cfg.xlabel)
         # _ = chart_.set_xticklabels(chart_.get_xticklabels(), rotation=45, horizontalalignment='right')
@@ -197,6 +200,19 @@ class WiscPlot:
         chart_ = sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
                              square=True, linewidths=.5, cbar_kws={"shrink": .5})
         _ = chart_.set(title=cfg.title, ylabel=cfg.ylabel, xlabel=cfg.xlabel)
+
+# # out = WiscPlot().rerieve_oid_from_person_df(df_players).refine_point_value_info()
+# conf0 = WiscPlot.Cfplot(
+#     col='ponto', title='Contagem dos Pontos Wisc', ylabel='Contagem de Pontos', xlabel="Participantes")
+# # out = WiscPlot().rerieve_oid_from_person_df(df_players).factorplot(conf)
+# conf = WiscPlot.Cfplot(
+#     col='ponto', title='Histograma das medidas do Wisc', ylabel='frequência das incidência', xlabel="incidência das medidas")
+# out = WiscPlot().rerieve_oid_from_person_df(df_players).histplot(conf)
+# # out = WiscPlot().rerieve_oid_from_person_df(df_players).violinplot(conf)
+# # out = WiscPlot().rerieve_oid_from_person_df(df_players).heatmap(conf)
+# # out = WiscPlot().rerieve_oid_from_person_df(df_players).plot(conf)
+# # print(out)
+# # WiscPlot().rerieve_oid_from_person_df(df_players).refine_point_value_info()
 
 
 
