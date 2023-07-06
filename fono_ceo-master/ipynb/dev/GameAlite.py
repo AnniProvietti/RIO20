@@ -1,5 +1,6 @@
 import urllib.request, json
 import pandas as pd
+import seaborn as sns
 from pandas import DataFrame
 from collections import namedtuple
 import numpy as np
