@@ -17,7 +17,7 @@ class WisconsinPlayers:
     PARAMSGOAL = "houses criteria markers trial headings time level".split()
     PARAMSTRIAL = "xpos house ypos player state score result time marker".split()
     PARAMSHOUSES = "categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
-    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne categoria acertosConsecutivos indiceCartaAtual" \
+    PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne categoria acertosConsecutivos indiceCartaAtual " \
                   "outrosConsecutivos wteste  c0 c1 c2 c3 c4 c5 c6 c7 h0 h1 h2 h3 h4 h5 h6 h7 time level markers " \
                   "categoriaTrial xpos cor score acertos house outros numero ypos player state result timeTrial marker".split()
 
