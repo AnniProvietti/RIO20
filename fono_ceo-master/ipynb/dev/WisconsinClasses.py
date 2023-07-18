@@ -19,7 +19,7 @@ class WisconsinPlayers:
     PARAMSHOUSES = "categoria acertosConsecutivos indiceCartaAtual outrosConsecutivos wteste".split()
     PARAMSDADOS = "ano1 idade1 sexo1 starttime endtime tipoescola name maxlevel timeOne categoria acertosConsecutivos indiceCartaAtual " \
                   "outrosConsecutivos wteste  c0 c1 c2 c3 c4 c5 c6 c7 h0 h1 h2 h3 h4 h5 h6 h7 time level markers " \
-                  "categoriaTrial xpos cor score acertos house outros numero ypos player state result timeTrial marker".split()
+                  "categoriaTrial xpos cor acertos house forma outros numero ypos player state score result time_trial marker carta_resposta".split()
 
     def __init__(self):
         self.players = self.legends = None
@@ -46,7 +46,6 @@ class WisconsinPlayers:
         reg = [x for x in registros[a:b]]
 
         id = [self.one_player(y)["_id"] for y in reg for game in self.one_player(y)["games"] if game["name"] == "wisconsin"]
-
         dados = [[self.one_player(y)["session"][col] for col in params] for y in reg for game in self.one_player(y)[
             'games'] if game["name"] == "wisconsin"]
 
@@ -77,9 +76,9 @@ class WisconsinPlayers:
                             one_id = one["_id"]
                             one_name = game["name"]
                             for trial in trials:
-                                tr1.append(one_id)
-                                tr2.append(one_name)
-                                tr3.append(trial)
+                                    tr1.append(one_id)
+                                    tr2.append(one_name)
+                                    tr3.append(trial)
 
 
 
@@ -105,8 +104,8 @@ class WisconsinPlayers:
         df_one_houses = pd.DataFrame(one_player_houses,index=id, columns=['categoria_houses', 'acertosConsecutivos', 'indiceCartaAtual',
                                                                  'outrosConsecutivos', 'wteste'])
         df_one_trial = pd.DataFrame(one_player_trial,index=tr1,
-                                    columns=['categoria', 'xpos', 'cor', 'score', 'acertos', 'house', 'outros',
-                                             'numero', 'ypos', 'player', 'state', 'result', 'time_trial', 'marker'])
+                                    columns=['categoria', 'xpos', 'cor', 'acertos', 'house', 'forma', 'outros',
+                                              'numero', 'ypos', 'player', 'state', 'score', 'result', 'time_trial', 'marker', 'carta_resposta'])
         df_one_criteria = pd.DataFrame(one_player_criteria,index=id,columns=["0", "1", "2", "3", "4", "5", "6", "7"])
         df_one_markers = pd.DataFrame(one_player_markers,index=id)
         df_one_headings = pd.DataFrame(one_player_headings,index=id,columns=["h0", "h1", "h2", "h3", "h4", "h5", "h6", "h7"])
@@ -127,12 +126,12 @@ class WisconsinPlayers:
         # print(df_one_trial)
         print(df_wisconsin)
 
-        import csv
-        with open(name, 'w') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=';')
-            [spamwriter.writerow(df_wisconsin.iloc[line]) for line in range(len(df_wisconsin))]
+        # import csv
+        # with open(name, 'w') as csvfile:
+        #     spamwriter = csv.writer(csvfile, delimiter=';')
+        #     [spamwriter.writerow(df_wisconsin.iloc[line]) for line in range(len(df_wisconsin))]
 
-        return df_wis
+        return df_wisconsin
 
 
 class WisconsinPandas:
