@@ -38,14 +38,15 @@ class WisconsinPlayers:
         registros = [numreg for data, numreg in registros if data and date in data]
         return registros[a:b]
 
-    def file_demographics(self, date="2012", start_count=(0, 2000), name="wisconsin.csv"):
+    def file_demographics(self, date="2012", start_count=(0, 2000)):
         a, b = start_count
         count = 0
         registros = self.get_players(date)
         params = self.PARAMS
         reg = [x for x in registros[a:b]]
 
-        id = [self.one_player(y)["_id"] for y in reg for game in self.one_player(y)["games"] if game["name"] == "wisconsin"]
+        id = [self.one_player(y)["_id"] for y in reg for game in self.one_player(y)['games'] if game["name"] ==
+              "wisconsin"]
         dados = [[self.one_player(y)["session"][col] for col in params] for y in reg for game in self.one_player(y)[
             'games'] if game["name"] == "wisconsin"]
 
