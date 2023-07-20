@@ -100,12 +100,13 @@ class WisconsinPlayers:
 
         # df_id = pd.DataFrame(id, columns=["id"])
         df_dados = pd.DataFrame(dados,index=id, columns=["ano1", "idade1", "sexo1", "starttime", "endtime", "tipoescola"])
-        df_one = pd.DataFrame(one_player,index=id, columns=["name", "maxlevel", "time_one"])
-        df_one_houses = pd.DataFrame(one_player_houses,index=id, columns=['categoria_houses', 'acertosConsecutivos', 'indiceCartaAtual',
-                                                                 'outrosConsecutivos', 'wteste'])
+        df_one = pd.DataFrame(one_player,index=id, columns=["name", "maxlevel", "time"])
+        df_one_houses = pd.DataFrame(one_player_houses,index=id)
+        # , columns=['categoria', 'acertosConsecutivos', 'indiceCartaAtual',
+                                                                #  'outrosConsecutivos', 'wteste'])
         df_one_trial = pd.DataFrame(one_player_trial,index=tr1,
                                     columns=['categoria', 'xpos', 'cor', 'acertos', 'house', 'forma', 'outros',
-                                              'numero', 'ypos', 'player', 'state', 'score', 'result', 'time_trial', 'marker', 'carta_resposta'])
+                                              'numero', 'ypos', 'player', 'state', 'score', 'result', 'time', 'marker', 'carta_resposta'])
         df_one_criteria = pd.DataFrame(one_player_criteria,index=id,columns=["0", "1", "2", "3", "4", "5", "6", "7"])
         df_one_markers = pd.DataFrame(one_player_markers,index=id)
         df_one_headings = pd.DataFrame(one_player_headings,index=id,columns=["h0", "h1", "h2", "h3", "h4", "h5", "h6", "h7"])
